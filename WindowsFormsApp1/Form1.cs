@@ -20,7 +20,7 @@ namespace WindowsFormsApp1
     {
         SqlConnection connection;
         Currency[] currencies = new Currency[3];
-        Checkpassword testDialog = new Checkpassword();
+        
 
 
         public Form1()
@@ -647,9 +647,20 @@ namespace WindowsFormsApp1
                     showTransactionsTable();
                     break;
                 case 1:
+                    
                     listBox1.Items.Clear();
-                    SqlCommand command1 = new SqlCommand("SELECT * FROM [CurrencyOne]", connection);
-                    showCurrencyTable(command1);
+                    if (!checkBox1.Checked)
+                    {
+                        SqlCommand command1 = new SqlCommand("SELECT * FROM [CurrencyOne] WHERE Date > '2019.03.03'  ", connection);
+                        showCurrencyTable(command1);
+                        //SqlCommand command1 = new SqlCommand("SELECT * FROM [CurrencyOne]", connection);
+                        //showCurrencyTable(command1);
+                    } else
+                    {
+
+                        SqlCommand command1 = new SqlCommand("SELECT * FROM [CurrencyOne] WHERE date BETWEEN '01-09-2019' AND '01-11-2020'", connection);
+                        showCurrencyTable(command1);
+                    }
                     break;
                 case 2:
                     listBox1.Items.Clear();
@@ -657,7 +668,8 @@ namespace WindowsFormsApp1
                     showCurrencyTable(command2);
                     break;
                 default:
-                    
+                    listBox1.Items.Clear();
+                    showRestrictionsTable();
                     break;
             }
         }
@@ -666,7 +678,7 @@ namespace WindowsFormsApp1
         {
             SqlDataReader sqlReader = null;
 
-            SqlCommand command = new SqlCommand("SELECT * FROM [Transactions]", connection);
+            SqlCommand command = new SqlCommand("SELECT * FROM [Transactions] WHERE DATE < '20190807'", connection);
             try
             {
                 sqlReader = await command.ExecuteReaderAsync();
@@ -708,6 +720,7 @@ namespace WindowsFormsApp1
                 while (await sqlReader.ReadAsync())
                 {
                     listBox1.Items.Add(Convert.ToString(sqlReader["id"]) + "  "
+                        + Convert.ToString(sqlReader["Date"]) + " "
                         + Convert.ToString(sqlReader["Time"]) + " "
                         + Convert.ToString(sqlReader["Value_Buy"]) + " "
                         + Convert.ToString(sqlReader["Value_Sell"]));
@@ -987,25 +1000,16 @@ namespace WindowsFormsApp1
         private void войтиToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+            String password = Microsoft.VisualBasic.Interaction.InputBox("Введите Пароль", "", "", 100, 100);
+            if(password == "admin")
+            {
+                button4.Enabled = true;
+                button3.Enabled = true;
+                button5.Enabled = true;
+                button7.Enabled = true;
+                
+            }
 
-            testDialog.Visible = true;
-
-
-            Thread thread1 = new Thread(async () => {
-                while (testDialog.loged != true)
-                {
-                    if (testDialog.loged == true)
-                    {
-                        button4.Enabled = true;
-                        button3.Enabled = true;
-                        button5.Enabled = true;
-                        button7.Enabled = true;
-                        testDialog.Visible = false;
-                    }
-                }
-
-            });
-            thread1.Start();
         }
 
         private void выйтиToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1014,7 +1018,7 @@ namespace WindowsFormsApp1
             button3.Enabled = false;
             button5.Enabled = false; 
             button7.Enabled = false;
-            testDialog.loged = false;
+            
         }
     }
 }
